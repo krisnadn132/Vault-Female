@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#ec4899">
-    <title>Krisna's Vault - Enterprise Financial System</title>
+    <title>Nda's Vault - Enterprise Financial System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -234,7 +234,7 @@
             <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), #f43f5e); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4);">
                 <span class="material-icons-round" style="font-size: 40px; color: white;">fingerprint</span>
             </div>
-            <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 5px; color: var(--text-main);">Krisna's Vault</h2>
+            <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 5px; color: var(--text-main);">Nda's Vault</h2>
             <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 32px;">Enterprise Offline Storage</p>
             <form id="loginForm">
                 <div class="form-group">
@@ -254,7 +254,7 @@
     <div id="app-wrapper" style="display: none; width: 100%; height: 100%;">
         
         <aside id="sidebar">
-            <div class="brand"><span class="material-icons-round">account_balance</span> Krisna's</div>
+            <div class="brand"><span class="material-icons-round">account_balance</span> Nda's</div>
             <nav id="main-nav">
                 <a href="#view-dashboard" class="nav-link active" data-target="view-dashboard" data-title="Dashboard & Transactions"><span class="material-icons-round">dashboard</span> Dashboard</a>
                 <a href="#view-budget" class="nav-link" data-target="view-budget" data-title="Planner & Budget"><span class="material-icons-round">track_changes</span> Planner & Budget</a>
@@ -272,7 +272,7 @@
                 <div class="profile-card">
                     <div class="profile-avatar">K</div>
                     <div style="flex: 1; overflow: hidden;">
-                        <p style="font-weight: 700; font-size: 0.9rem; color: var(--text-main); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">Krisna</p>
+                        <p style="font-weight: 700; font-size: 0.9rem; color: var(--text-main); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">Nda</p>
                         <p style="font-size: 0.75rem; color: var(--success); font-weight: 600;">Enterprise Admin</p>
                     </div>
                 </div>
@@ -696,10 +696,10 @@
             /* =========================================
                A. CORE ARCHITECTURE & STATE
                ========================================= */
-            const U_HASH = "S3Jpc25h";      // Krisna
-            const P_HASH = "S3Jpc25hITMy";  // Krisna!32
+            const U_HASH = "S3Jpc25h";      // Nda
+            const P_HASH = "S3Jpc25hITMy";  // Nda!32
 
-            const STORAGE_KEY = 'krisnaVaultEnterpriseV6_Business'; 
+            const STORAGE_KEY = 'NdaVaultEnterpriseV6_Business'; 
             
             const DEFAULT_DATA = {
                 transactions: [],
@@ -1549,7 +1549,7 @@
                 let url = URL.createObjectURL(blob);
                 const l = document.createElement("a"); 
                 l.href = url; 
-                l.download = `KrisnaVault_Transactions_${Util.date()}.csv`; 
+                l.download = `NdaVault_Transactions_${Util.date()}.csv`; 
                 document.body.appendChild(l); l.click(); l.remove();
                 URL.revokeObjectURL(url);
                 UI.toast('CSV Export Downloaded!', 'success');
@@ -1560,7 +1560,7 @@
                 let dataStr = JSON.stringify(AppState.data, null, 2);
                 let blob = new Blob([dataStr], {type: "application/json"});
                 let url  = URL.createObjectURL(blob);
-                const l = document.createElement("a"); l.href = url; l.download = `KrisnaVault_Backup_${Util.date()}.json`;
+                const l = document.createElement("a"); l.href = url; l.download = `NdaVault_Backup_${Util.date()}.json`;
                 document.body.appendChild(l); l.click(); l.remove();
                 URL.revokeObjectURL(url);
                 UI.toast('Full Backup Downloaded!', 'success');
