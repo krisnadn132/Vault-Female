@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ec4899">
+    <title>Krisna's Vault - Enterprise Financial System</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* ==========================================================================
+           1. CSS VARIABLES & THEME ENGINE (REVISI: PINK THEME)
+           ========================================================================== */
+        :root {
+            /* Tema warna diubah ke palet Pink (Magenta/Rose) */
+            --primary: #ec4899; 
+            --primary-hover: #db2777; 
+            --primary-light: rgba(236, 72, 153, 0.1);
+            --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --info: #3b82f6;
+            --purple: #8b5cf6; --business: #f43f5e;
+            
+            /* Light Mode */
+            --bg-body: #fdf2f8; --bg-surface: #ffffff;
+            --text-main: #0f172a; --text-muted: #64748b;
+            --border: #fbcfe8; --input-bg: #fff1f2;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 10px 15px -3px rgba(0,0,0,0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --radius-lg: 16px; --radius-md: 12px; --radius-sm: 8px;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --hover-row: #fce7f3;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0b1120; 
+            --bg-surface: #1e293b; 
+            --text-main: #f1f5f9; 
+            --text-muted: #94a3b8;
+            --border: #334155; 
+            --input-bg: #0f172a;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.5);
+            --glass-bg: rgba(30, 41, 59, 0.85);
+            --hover-row: #0f172a;
+        }
+
+        /* ==========================================================================
+           2. GLOBAL RESETS & LAYOUT
+           ========================================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; transition: background-color 0.25s, border-color 0.25s, color 0.25s; }
+        h1, h2, h3, .brand { font-family: 'Poppins', sans-serif; }
+        
+        body { background-color: var(--bg-body); color: var(--text-main); height: 100vh; width: 100vw; overflow: hidden; display: flex; }
+        button { cursor: pointer; border: none; background: none; font-weight: 500; color: inherit; transition: all 0.2s; }
+        input, select { font-family: inherit; }
+        a { text-decoration: none; color: var(--primary); }
+        a:hover { text-decoration: underline; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* --- Sidebar --- */
+        aside { width: 280px; background: var(--bg-surface); border-right: 1px solid var(--border); padding: 24px 20px; display: flex; flex-direction: column; z-index: 20; flex-shrink: 0; overflow-y: auto;}
+        .brand { font-size: 1.5rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; margin-bottom: 32px; letter-spacing: -0.5px;}
+        .brand span { background: linear-gradient(135deg, var(--primary), #f43f5e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 30px;}
+        
+        nav { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 14px; color: var(--text-muted); border-radius: var(--radius-md); font-weight: 600; font-size: 0.9rem; text-decoration: none; position: relative; }
+        .nav-link:hover { background: var(--primary-light); color: var(--primary); }
+        .nav-link.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35); }
+        .nav-link.active .material-icons-round { color: white; }
+        .nav-link .material-icons-round { font-size: 20px; }
+
+        .sidebar-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+        .profile-card { display: flex; align-items: center; gap: 12px; padding: 8px; background: var(--bg-body); border-radius: var(--radius-md); border: 1px solid var(--border); }
+        .profile-avatar { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, var(--primary), #f43f5e); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; }
+        .btn-logout { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px; border-radius: var(--radius-sm); color: var(--danger); font-weight: 600; font-size: 0.9rem; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); transition: all 0.2s; }
+        .btn-logout:hover { background: var(--danger); color: white; border-color: var(--danger); }
+
+        /* --- Main Content --- */
+        main { flex: 1; display: flex; flex-direction: column; padding: 24px 32px; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth;}
+        
+        header { max-width: 1400px; margin: 0 auto 28px auto; width: 100%; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 12px 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-sm); z-index: 10; position: sticky; top: 0;}
+        .header-title h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2;}
+        .header-title p { color: var(--text-muted); font-size: 0.85rem; margin-top: 2px; font-weight: 500;}
+        
+        .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap;}
+        .btn-icon { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-main); border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600; box-shadow: var(--shadow-sm); cursor: pointer;}
+        .btn-icon:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--primary); }
+
+        /* Time Machine Controls */
+        .time-machine-group { display: flex; gap: 8px; align-items: center; background: var(--bg-surface); padding: 4px; border-radius: var(--radius-sm); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+        .time-machine-group select { border: none; background: transparent; color: var(--text-main); font-weight: 600; font-size: 0.85rem; padding: 6px 32px 6px 10px; cursor: pointer; outline: none; }
+        .time-machine-group select:focus { color: var(--primary); }
+
+        .view-section { max-width: 1400px; margin: 0 auto; width: 100%; display: none; flex-direction: column; animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); gap: 24px; padding-bottom: 40px;}
+        .view-section.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ==========================================================================
+           3. UI COMPONENTS (Cards, Grids, Forms, Tables)
+           ========================================================================== */
+        .panel { background: var(--bg-surface); padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid var(--border); display: flex; flex-direction: column; min-width: 0; width: 100%; position: relative;}
+        .panel-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+        .panel-title { font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 10px; color: var(--text-main); flex-shrink: 0;}
+        .panel-title .material-icons-round { font-size: 24px; }
+        .panel-summary { background: rgba(236, 72, 153, 0.08); border: 1px solid rgba(236, 72, 153, 0.2); color: var(--primary); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; white-space: nowrap;}
+
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; } 
+        .grid-chart { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        
+        .stat-card { display: flex; align-items: center; gap: 16px; padding: 20px; background: var(--bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid var(--border); transition: transform 0.2s, box-shadow 0.2s; min-width: 0;}
+        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
+        
+        .stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 26px; flex-shrink: 0; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.15);}
+        .stat-info { flex: 1; min-width: 0; }
+        .stat-info h3 { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .stat-info h2 { font-size: 1.15rem; font-weight: 800; color: var(--text-main); word-wrap: break-word; line-height: 1.2; letter-spacing: -0.5px;}
+
+        /* Banner Insight AI */
+        .insight-banner { background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(244, 63, 94, 0.08)); border: 1px solid rgba(236, 72, 153, 0.2); border-left: 5px solid var(--primary); padding: 16px 24px; border-radius: var(--radius-lg); display: flex; align-items: center; gap: 16px; margin-bottom: 8px;}
+        .insight-banner .icon-box { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); color: white; display: flex; justify-content: center; align-items: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);}
+        .insight-text h4 { font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;}
+        .insight-text p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;}
+
+        /* Form Controls */
+        .form-group { width: 100%; margin-bottom: 16px; position: relative; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); }
+        .form-control { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background-color: var(--input-bg); color: var(--text-main); font-size: 0.95rem; outline: none; transition: all 0.2s; margin: 0; }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); background-color: var(--bg-surface); }
+        .form-control::placeholder { color: var(--text-muted); opacity: 0.6; }
+        
+        select.form-control, select.time-select {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; padding-right: 40px; cursor: pointer;
+        }
+        [data-theme="dark"] select.form-control, [data-theme="dark"] select.time-select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        }
+
+        .format-helper { display: block; font-size: 0.75rem; font-weight: 700; color: var(--success); margin-top: 6px; min-height: 16px; opacity: 0.9; }
+
+        /* Buttons */
+        .btn-primary { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--primary), #f43f5e); color: white; font-weight: 600; font-size: 0.95rem; border-radius: var(--radius-sm); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3); transition: all 0.2s;}
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5); }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #b91c1c); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+
+        /* Tables & Badges */
+        .table-wrapper { width: 100%; overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-surface);}
+        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 600px; }
+        th { background: var(--bg-body); color: var(--text-muted); padding: 16px; text-align: left; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--border); letter-spacing: 0.5px;}
+        td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; color: var(--text-main);}
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--hover-row); }
+
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-align: center; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-income, .badge-buy, .badge-active { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2);}
+        .badge-expense, .badge-sell, .badge-inactive { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2);}
+        .badge-pay { background: rgba(139, 92, 246, 0.15); color: var(--purple); border: 1px solid rgba(139, 92, 246, 0.2); cursor: pointer; transition: all 0.2s;}
+        .badge-pay:hover { background: var(--purple); color: white; }
+
+        .text-success { color: var(--success); font-weight: 600; }
+        .text-danger { color: var(--danger); font-weight: 600; }
+
+        /* Progress Bar */
+        .prog-container { width: 100%; background: var(--bg-body); border-radius: 10px; height: 10px; margin-top: 8px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border);}
+        .prog-bar { height: 100%; border-radius: 10px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .chart-container { width: 100%; height: 320px; position: relative; }
+
+        /* ==========================================================================
+           4. MODALS, TOASTS, & LOGIN SCREEN
+           ========================================================================== */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 99999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-card { background: var(--bg-surface); width: 90%; max-width: 420px; border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-lg); transform: scale(0.9); transition: all 0.3s; border: 1px solid var(--border);}
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        .modal-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; color: var(--text-main);}
+        .modal-body { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; line-height: 1.6; }
+        .modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+        .btn-modal { padding: 10px 18px; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.9rem; }
+        .btn-cancel { background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); }
+        .btn-cancel:hover { background: var(--hover-row); border-color: var(--text-muted); }
+
+        #login-screen { position: fixed; inset: 0; background: var(--bg-body); display: flex; justify-content: center; align-items: center; z-index: 99999; }
+        .login-card { background: var(--bg-surface); padding: 48px 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-width: 420px; text-align: center; border: 1px solid var(--border); }
+        
+        #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; pointer-events: none;}
+        .toast { background: var(--bg-surface); color: var(--text-main); padding: 16px 20px; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); border-left: 5px solid var(--primary); display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 0.9rem; animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards, fadeOut 0.4s 4s forwards; border-right: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);}
+        
+        .pwd-wrapper { position: relative; width: 100%; }
+        .pwd-wrapper input { padding-right: 45px; }
+        .btn-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-eye:hover { color: var(--primary); }
+
+        @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(20px); visibility: hidden; } }
+
+        /* --- Media Queries --- */
+        @media (max-width: 1024px) { .grid-chart { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            aside { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 16px; flex-direction: row; align-items: center; justify-content: space-between;}
+            .brand { margin-bottom: 0; font-size: 1.2rem;}
+            nav, .sidebar-footer { display: none; } 
+            main { padding: 16px; }
+            .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+            header { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .header-actions { width: 100%; justify-content: flex-start; }
+            .time-machine-group { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <div id="modal-container" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title" id="modal-title"><span class="material-icons-round">info</span> Title</div>
+            <div class="modal-body" id="modal-body">Body content goes here.</div>
+            <div class="modal-actions" id="modal-actions"></div>
+        </div>
+    </div>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), #f43f5e); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4);">
+                <span class="material-icons-round" style="font-size: 40px; color: white;">fingerprint</span>
+            </div>
+            <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 5px; color: var(--text-main);">Krisna's Vault</h2>
+            <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 32px;">Enterprise Offline Storage</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="login-username" class="form-control" placeholder="Username" required autocomplete="username">
+                </div>
+                <div class="form-group pwd-wrapper">
+                    <input type="password" id="login-password" class="form-control" placeholder="Password" required autocomplete="current-password">
+                    <button type="button" class="btn-eye" id="btn-toggle-pwd"><span class="material-icons-round">visibility</span></button>
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top: 8px; padding: 14px; font-size: 1rem;">Unlock Vault</button>
+                <p id="login-error" style="color: var(--danger); display: none; margin-top: 16px; font-size: 0.85rem; font-weight: 600; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); padding: 10px; border-radius: 6px;">Authentication Failed! Check Credentials.</p>
+            </form>
+            <p style="margin-top:32px; font-size: 0.75rem; color: var(--text-muted);">🛡️ Data is heavily encrypted and stored locally.</p>
+        </div>
+    </div>
+
+    <div id="app-wrapper" style="display: none; width: 100%; height: 100%;">
+        
+        <aside id="sidebar">
+            <div class="brand"><span class="material-icons-round">account_balance</span> Krisna's</div>
+            <nav id="main-nav">
+                <a href="#view-dashboard" class="nav-link active" data-target="view-dashboard" data-title="Dashboard & Transactions"><span class="material-icons-round">dashboard</span> Dashboard</a>
+                <a href="#view-budget" class="nav-link" data-target="view-budget" data-title="Planner & Budget"><span class="material-icons-round">track_changes</span> Planner & Budget</a>
+                
+                <a href="#view-business" class="nav-link" data-target="view-business" data-title="Business Records"><span class="material-icons-round">storefront</span> Business Records</a>
+                
+                <a href="#view-subscriptions" class="nav-link" data-target="view-subscriptions" data-title="Fixed Subscriptions"><span class="material-icons-round">event_repeat</span> Subscriptions</a>
+                <a href="#view-savings" class="nav-link" data-target="view-savings" data-title="Savings Goals"><span class="material-icons-round">savings</span> Savings Goals</a>
+                <a href="#view-wishlist" class="nav-link" data-target="view-wishlist" data-title="Purchase Wishlist"><span class="material-icons-round">shopping_bag</span> Purchase Wishlist</a>
+                <a href="#view-analytics" class="nav-link" data-target="view-analytics" data-title="Advanced Analytics"><span class="material-icons-round">insights</span> Analytics</a>
+                <a href="#view-settings" class="nav-link" data-target="view-settings" data-title="System Settings"><span class="material-icons-round">tune</span> Settings & Backup</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="profile-card">
+                    <div class="profile-avatar">K</div>
+                    <div style="flex: 1; overflow: hidden;">
+                        <p style="font-weight: 700; font-size: 0.9rem; color: var(--text-main); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">Krisna</p>
+                        <p style="font-size: 0.75rem; color: var(--success); font-weight: 600;">Enterprise Admin</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-logout" id="btn-logout"><span class="material-icons-round" style="font-size: 18px;">lock_outline</span> Lock Vault</button>
+            </div>
+        </aside>
+
+        <main id="main-content">
+            <header>
+                <div class="header-title">
+                    <h1 id="page-title">Dashboard Overview</h1>
+                    <p id="current-date">Loading date...</p>
+                </div>
+                <div class="header-actions">
+                    <div class="time-machine-group">
+                        <span class="material-icons-round" style="color:var(--primary); padding-left:4px; font-size:20px;">calendar_month</span>
+                        <select id="filter-year" class="time-select" title="Select Year"></select>
+                        <select id="filter-month" class="time-select" title="Select Month">
+                            <option value="all">All Months</option>
+                            <option value="01">January</option>
+                            <option value="02">February</option>
+                            <option value="03">March</option>
+                            <option value="04">April</option>
+                            <option value="05">May</option>
+                            <option value="06">June</option>
+                            <option value="07">July</option>
+                            <option value="08">August</option>
+                            <option value="09">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn-icon" id="btn-theme-toggle" title="Toggle Dark/Light Mode"><span class="material-icons-round" id="theme-icon">light_mode</span></button>
+                    <button type="button" class="btn-icon" id="btn-export-csv" style="background: var(--primary); color: white; border: none; box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);"><span class="material-icons-round">download</span> Backup CSV</button>
+                </div>
+            </header>
+
+            <section id="view-dashboard" class="view-section active">
+                <div class="insight-banner" id="financial-insight">
+                    <div class="icon-box"><span class="material-icons-round">psychology</span></div>
+                    <div class="insight-text">
+                        <h4>Financial AI Insight (Filtered Period)</h4>
+                        <p id="insight-message">Analyzing your financial data...</p>
+                    </div>
+                </div>
+
+                <div class="grid-4">
+                    <div class="stat-card" style="border-left: 4px solid var(--info);">
+                        <div class="stat-icon" style="background: var(--info);"><span class="material-icons-round">diamond</span></div>
+                        <div class="stat-info"><h3 title="Fiat Balance + Business Profit">Total Net Worth</h3><h2 id="dash-networth">Rp 0</h2></div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid var(--primary);">
+                        <div class="stat-icon" style="background: var(--primary);"><span class="material-icons-round">account_balance_wallet</span></div>
+                        <div class="stat-info"><h3 title="Cumulative Fiat Balance">Fiat Balance</h3><h2 id="dash-balance">Rp 0</h2></div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid var(--success);">
+                        <div class="stat-icon" style="background: var(--success);"><span class="material-icons-round">south_west</span></div>
+                        <div class="stat-info"><h3 title="Income for Selected Period">Filtered Income</h3><h2 id="dash-income">Rp 0</h2></div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid var(--danger);">
+                        <div class="stat-icon" style="background: var(--danger);"><span class="material-icons-round">north_east</span></div>
+                        <div class="stat-info"><h3 title="Expense for Selected Period">Filtered Expense</h3><h2 id="dash-expense">Rp 0</h2></div>
+                    </div>
+                </div>
+                
+                <div class="grid-chart">
+                    <div class="panel">
+                        <h2 class="panel-title"><span class="material-icons-round" style="color:var(--primary);">bar_chart</span> Cashflow Trend</h2>
+                        <div class="chart-container"><canvas id="dashboardChart"></canvas></div>
+                    </div>
+                    <div class="panel" style="display: flex; flex-direction: column;">
+                        <h2 class="panel-title"><span class="material-icons-round" style="color:var(--warning);">pie_chart</span> Expense Breakdown</h2>
+                        <div class="chart-container" style="flex: 1; min-height: 250px;"><canvas id="expensePieChart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2 class="panel-title"><span class="material-icons-round" style="color:var(--success);">flash_on</span> Quick Log Transaction</h2>
+                    <form id="form-add-tx">
+                        <div class="grid-4">
+                            <div class="form-group">
+                                <label>Transaction Date</label>
+                                <input type="date" id="add-date" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Transaction Type</label>
+                                <select id="add-type" class="form-control" required>
+                                    <option value="income">Income</option>
+                                    <option value="expense" selected>Expense</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="add-category" class="form-control" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Amount (IDR)</label>
+                                <input type="number" id="add-amount" class="form-control" placeholder="e.g. 150000" required>
+                                <span class="format-helper" id="helper-add-amount"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Note / Description (Optional)</label>
+                            <input type="text" id="add-note" class="form-control" placeholder="What was this transaction for?">
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+                            <button type="submit" class="btn-primary" style="width: auto; padding: 12px 32px; font-size: 1rem;">
+                                <span class="material-icons-round" style="font-size: 20px; vertical-align: middle; margin-right: 6px;">save</span> Save Transaction
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title" style="margin-bottom:0;"><span class="material-icons-round">list_alt</span> Fiat Transactions</h2>
+                        <div class="panel-summary" id="summary-tx">Viewing All Time</div>
+                    </div>
+                    <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
+                        <table id="table-all">
+                            <thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Note</th><th>Amount</th><th>Action</th></tr></thead>
+                            <tbody id="tbody-fiat-history"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-budget" class="view-section">
+                <div class="grid-2" style="align-items: flex-start;">
+                    <div class="panel">
+                        <h2 class="panel-title"><span class="material-icons-round">edit_note</span> Set Monthly Expense Target</h2>
+                        <form id="form-budget" style="margin-bottom: 32px;">
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label>Category (Expense Only)</label>
+                                    <select id="bud-cat" class="form-control" required></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Budget Limit (IDR)</label>
+                                    <input type="number" id="bud-amount" class="form-control" required>
+                                    <span class="format-helper" id="helper-bud-amount"></span>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: flex-end;">
+                                <button type="submit" class="btn-primary" style="width: auto; padding: 12px 32px;">Save Target</button>
+                            </div>
+                        </form>
+                        
+                        <h3 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px; text-transform:uppercase; font-weight:700;">Active Configurations</h3>
+                        <div id="list-budget-plans" style="display:flex; flex-direction:column; gap:12px;"></div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2 class="panel-title" style="margin-bottom:0;"><span class="material-icons-round" style="color:var(--warning);">track_changes</span> Reality vs Target</h2>
+                            <div class="panel-summary" id="summary-budget">Total: Rp 0 / Rp 0</div>
+                        </div>
+                        <div id="budget-progress-container" style="display:flex; flex-direction:column; gap: 24px;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-business" class="view-section">
+                <div class="grid-4">
+                    <div class="stat-card" style="border-left: 4px solid var(--success);">
+                        <div class="stat-icon" style="background: var(--success);"><span class="material-icons-round">arrow_downward</span></div>
+                        <div class="stat-info"><h3 title="Business Income (Revenue)">Revenue</h3><h2 id="bus-income">Rp 0</h2></div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid var(--danger);">
+                        <div class="stat-icon" style="background: var(--danger);"><span class="material-icons-round">arrow_upward</span></div>
+                        <div class="stat-info"><h3 title="Business Expense (Capital)">Cost / Capital</h3><h2 id="bus-expense">Rp 0</h2></div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid var(--primary);">
+                        <div class="stat-icon" style="background: var(--primary);"><span class="material-icons-round">attach_money</span></div>
+                        <div class="stat-info"><h3 title="Net Business Profit">Net Profit</h3><h2 id="bus-profit">Rp 0</h2></div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid var(--info);">
+                        <div class="stat-icon" style="background: var(--info);"><span class="material-icons-round">inventory_2</span></div>
+                        <div class="stat-info"><h3 title="Total Items/Qty Bought & Sold">Total Quantity</h3><h2 id="bus-qty">0</h2></div>
+                    </div>
+                </div>
+
+                <div class="grid-2" style="align-items: stretch;">
+                    <div class="panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <h2 class="panel-title"><span class="material-icons-round">add_business</span> Log Business Transaction</h2>
+                            <form id="form-add-business" style="display: flex; flex-direction: column;">
+                                <div class="grid-2" style="gap: 16px;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>Transaction Date</label>
+                                        <input type="date" id="bus-date" class="form-control" required>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>Item / Service Name</label>
+                                        <input type="text" id="bus-item" class="form-control" placeholder="e.g. T-Shirt" required>
+                                    </div>
+                                </div>
+                                <div class="grid-2" style="gap: 16px; margin-top: 16px;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>Buying Price (Harga Beli) per unit</label>
+                                        <input type="number" id="bus-buy-price" class="form-control" required min="0">
+                                        <span class="format-helper" id="helper-bus-buy"></span>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>Selling Price (Harga Jual) per unit</label>
+                                        <input type="number" id="bus-sell-price" class="form-control" required min="0">
+                                        <span class="format-helper" id="helper-bus-sell"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-top: 16px;">
+                                    <label>Quantity (Jumlah Dibeli/Dijual)</label>
+                                    <input type="number" id="bus-quantity" class="form-control" required min="1">
+                                </div>
+                                
+                                <div style="display:flex; justify-content:space-between; align-items: center; margin: 16px 0 24px 0; font-weight:700; color:var(--text-main); background: var(--bg-body); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                                    <span>Estimated Profit:</span> <span id="bus-est-profit" style="color: var(--primary); font-size: 1.15rem;">Rp 0</span>
+                                </div>
+                                
+                                <div style="display: flex; justify-content: flex-end; margin-top: auto;">
+                                    <button type="submit" class="btn-primary" style="width: auto; padding: 12px 32px;">Save Business Record</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="panel" style="display: flex; flex-direction: column;">
+                        <h2 class="panel-title"><span class="material-icons-round">history</span> Business History</h2>
+                        <div class="table-wrapper" style="flex: 1; max-height: 420px; overflow-y: auto;">
+                            <table id="table-business-history">
+                                <thead><tr><th>Date</th><th>Item</th><th>Qty</th><th>Buy / Sell Price</th><th>Profit</th><th>Action</th></tr></thead>
+                                <tbody id="tbody-business-history"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-subscriptions" class="view-section">
+                <div class="grid-3">
+                    <div class="stat-card" style="border-left: 4px solid var(--purple); grid-column: span 1;">
+                        <div class="stat-icon" style="background: var(--purple);"><span class="material-icons-round">event_repeat</span></div>
+                        <div class="stat-info"><h3 title="Estimated Monthly Fixed Cost">Est. Monthly Cost</h3><h2 id="sub-monthly-cost">Rp 0</h2></div>
+                    </div>
+                    <div class="panel" style="grid-column: span 2;">
+                        <h2 class="panel-title"><span class="material-icons-round" style="color:var(--purple);">add_circle</span> Add Fixed Subscription / Bill</h2>
+                        <form id="form-add-sub">
+                            <div class="grid-3">
+                                <div class="form-group">
+                                    <label>Service Name</label>
+                                    <input type="text" id="sub-name" class="form-control" placeholder="e.g. Netflix Premium" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Billing Cost (IDR)</label>
+                                    <input type="number" id="sub-price" class="form-control" placeholder="e.g. 186000" required>
+                                    <span class="format-helper" id="helper-sub-price"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Billing Cycle</label>
+                                    <select id="sub-cycle" class="form-control" required>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: flex-end;">
+                                <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--purple), #6366f1); width: auto; padding: 12px 32px;">Save Bill</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title" style="margin-bottom:0;"><span class="material-icons-round">format_list_bulleted</span> Your Fixed Bills</h2>
+                        <div class="panel-summary" id="summary-subs">Active: 0 | Paused: 0</div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>Service Name</th><th>Billing Cost</th><th>Cycle</th><th>Est. Monthly</th><th>Payment & Action</th></tr></thead>
+                            <tbody id="tbody-subs"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-savings" class="view-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title" style="margin-bottom:0;"><span class="material-icons-round" style="color:var(--success);">savings</span> Future Savings Goals</h2>
+                        <div class="panel-summary" id="summary-sav">Total Saved: Rp 0 / Rp 0</div>
+                    </div>
+                    <form id="form-add-saving" style="margin-bottom: 32px;">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Goal Name</label>
+                                <input type="text" id="sav-name" class="form-control" placeholder="e.g. Emergency Fund" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Target Amount (IDR)</label>
+                                <input type="number" id="sav-target" class="form-control" placeholder="e.g. 50000000" required>
+                                <span class="format-helper" id="helper-sav-target"></span>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button type="submit" class="btn-primary" style="width: auto; padding: 12px 32px;">Create New Goal</button>
+                        </div>
+                    </form>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>Savings Progress</th><th>Action</th></tr></thead>
+                            <tbody id="tbody-savings"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-wishlist" class="view-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title" style="margin-bottom:0;"><span class="material-icons-round" style="color:var(--info);">shopping_bag</span> Purchase Wishlist Items</h2>
+                        <div class="panel-summary" id="summary-wish">Total Pending: Rp 0</div>
+                    </div>
+                    <form id="form-add-wishlist" style="margin-bottom: 32px;">
+                        <div class="grid-3">
+                            <div class="form-group">
+                                <label>Item Name</label>
+                                <input type="text" id="wish-name" class="form-control" placeholder="e.g. Macbook Pro M3" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Estimated Price (IDR)</label>
+                                <input type="number" id="wish-price" class="form-control" placeholder="e.g. 25000000" required>
+                                <span class="format-helper" id="helper-wish-price"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Store URL (Optional)</label>
+                                <input type="url" id="wish-link" class="form-control" placeholder="https://amazon.com/...">
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button type="submit" class="btn-primary" style="width: auto; padding: 12px 32px;">Add to Wishlist</button>
+                        </div>
+                    </form>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>Item Info & Price</th><th>Reference Link</th><th>Status / Action</th></tr></thead>
+                            <tbody id="tbody-wishlist"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-analytics" class="view-section">
+                <div class="grid-4" id="analytic-stats"></div>
+                <div class="panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+                        <h2 class="panel-title" style="margin:0;"><span class="material-icons-round" style="color:var(--primary);">timeline</span> Category Detailed Trend (Filtered Period)</h2>
+                        <select id="ana-category" class="form-control" style="width:250px; margin:0;"></select>
+                    </div>
+                    <div class="chart-container"><canvas id="analyticsDetailChart"></canvas></div>
+                </div>
+            </section>
+
+            <section id="view-settings" class="view-section">
+                <div class="grid-2">
+                    <div class="panel">
+                        <h2 class="panel-title"><span class="material-icons-round">shopping_cart</span> Expense Categories</h2>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;" id="list-cat-expense"></div>
+                        <form id="form-setting-expense" style="display: flex; gap: 12px; align-items: flex-end; margin-top: auto;">
+                            <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                                <input type="text" id="new-cat-expense" class="form-control" placeholder="Add new..." required>
+                            </div>
+                            <button type="submit" class="btn-primary" style="width: auto; padding: 12px 20px; margin-bottom: 0;">Add</button>
+                        </form>
+                    </div>
+                    
+                    <div class="panel">
+                        <h2 class="panel-title"><span class="material-icons-round">payments</span> Income Categories</h2>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;" id="list-cat-income"></div>
+                        <form id="form-setting-income" style="display: flex; gap: 12px; align-items: flex-end; margin-top: auto;">
+                            <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                                <input type="text" id="new-cat-income" class="form-control" placeholder="Add new..." required>
+                            </div>
+                            <button type="submit" class="btn-primary" style="width: auto; padding: 12px 20px; margin-bottom: 0;">Add</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="panel" style="display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(135deg, var(--bg-surface), rgba(236, 72, 153, 0.05)); border: 1px solid var(--primary-light);">
+                        <div>
+                            <h2 class="panel-title"><span class="material-icons-round" style="color:var(--primary);">cloud_sync</span> System Backup & Restore</h2>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px;">It is highly recommended to regularly back up (Export) your data. Import your JSON file to restore all previously saved records.</p>
+                        </div>
+                        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                            <button type="button" id="btn-export-json" class="btn-primary" style="width: auto; padding: 12px 24px; display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--success), #059669);"><span class="material-icons-round">file_download</span> Export Backup (JSON)</button>
+                            <button type="button" id="btn-trigger-import" class="btn-primary" style="width: auto; padding: 12px 24px; display: flex; align-items: center; gap: 8px; background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); box-shadow: none;"><span class="material-icons-round" style="color: var(--primary);">file_upload</span> Import Backup (JSON)</button>
+                            <input type="file" id="file-import-json" accept=".json" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div class="panel" style="display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); text-align: left;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 50px; height: 50px; background: rgba(239,68,68,0.1); color: var(--danger); border-radius: 50%; display: flex; align-items:center; justify-content:center;"><span class="material-icons-round" style="font-size: 28px;">warning</span></div>
+                                <h2 class="panel-title" style="color: var(--danger); margin-bottom: 0;">Danger Zone</h2>
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 24px;">This action will permanently wipe all data (Transactions, Business, Wishlist, etc.) stored in this browser. This cannot be undone without a backup file.</p>
+                        </div>
+                        <button type="button" id="btn-reset-data" class="btn-primary btn-danger" style="max-width: 250px;">Wipe System Records</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="toast-container" aria-live="polite"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            /* =========================================
+               A. CORE ARCHITECTURE & STATE
+               ========================================= */
+            const U_HASH = "S3Jpc25h";      // Krisna
+            const P_HASH = "S3Jpc25hITMy";  // Krisna!32
+
+            const STORAGE_KEY = 'krisnaVaultEnterpriseV6_Business'; 
+            
+            const DEFAULT_DATA = {
+                transactions: [],
+                categories: {
+                    income: ['Salary', 'Bonus', 'Investment', 'Other'],
+                    expense: ['Food', 'Transport', 'Rent', 'Shopping', 'Utility', 'Entertainment', 'Other']
+                },
+                business: [], // REPLACED Crypto with Business
+                budgets: {}, savings: [], wishlist: [], subscriptions: [] 
+            };
+
+            const AppState = {
+                data: null,
+                selectedMonth: new Date().toISOString().substring(0, 7), // GLOBAL TIME MACHINE STATE
+                init() {
+                    try { this.data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_DATA; } 
+                    catch { this.data = DEFAULT_DATA; }
+                    
+                    if (!Array.isArray(this.data.transactions)) this.data.transactions = [];
+                    if (!Array.isArray(this.data.business)) this.data.business = [];
+                    if (!Array.isArray(this.data.savings)) this.data.savings = [];
+                    if (!Array.isArray(this.data.wishlist)) this.data.wishlist = [];
+                    if (!Array.isArray(this.data.subscriptions)) this.data.subscriptions = [];
+                    if (!this.data.budgets || typeof this.data.budgets !== 'object') this.data.budgets = {};
+                    
+                    if (!this.data.categories) this.data.categories = DEFAULT_DATA.categories;
+                    if (!Array.isArray(this.data.categories.income)) this.data.categories.income = DEFAULT_DATA.categories.income;
+                    if (!Array.isArray(this.data.categories.expense)) this.data.categories.expense = DEFAULT_DATA.categories.expense;
+                    
+                    // Safely drop old crypto data if exists
+                    delete this.data.cryptoTrades;
+                    delete this.data.coins;
+                },
+                save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data)); }
+            };
+
+            /* =========================================
+               B. UTILITIES & MODAL ENGINE
+               ========================================= */
+            const Util = {
+                escapeHTML: (str) => {
+                    if(!str) return '';
+                    let div = document.createElement('div'); div.appendChild(document.createTextNode(str));
+                    return div.innerHTML;
+                },
+                idr: (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(v).replace('Rp', 'Rp '),
+                date: () => new Date().toISOString().split('T')[0],
+                todayStr: () => new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                id: (p) => p + Date.now() + Math.floor(Math.random()*1000)
+            };
+
+            const isZero = (val) => Math.abs(val) < Number.EPSILON || val < 0.000001;
+
+            // Advanced Time Machine Filter Logic
+            const Filter = {
+                getYear: () => document.getElementById('filter-year').value,
+                getMonth: () => document.getElementById('filter-month').value,
+                isMatch: (dateStr) => {
+                    let y = Filter.getYear(); let m = Filter.getMonth();
+                    if (y === 'all') return true;
+                    if (m === 'all') return dateStr.startsWith(y);
+                    return dateStr.startsWith(`${y}-${m}`);
+                },
+                getEndDate: () => {
+                    let y = Filter.getYear(); let m = Filter.getMonth();
+                    if (y === 'all') return '9999-12-31';
+                    if (m === 'all') return `${y}-12-31`;
+                    return `${y}-${m}-31`; 
+                },
+                getSummaryText: () => {
+                    let y = Filter.getYear(); let m = Filter.getMonth();
+                    if (y === 'all') return "All Time";
+                    if (m === 'all') return `Year ${y}`;
+                    let mName = document.querySelector(`#filter-month option[value="${m}"]`).innerText;
+                    return `${mName} ${y}`;
+                }
+            };
+
+            const DOM = { views: document.querySelectorAll('.view-section'), navs: document.querySelectorAll('.nav-link'), toast: document.getElementById('toast-container') };
+
+            const UI = {
+                toast: (msg, type='success') => {
+                    const t = document.createElement('div'); t.className = 'toast'; 
+                    t.style.borderLeftColor = `var(--${type})`;
+                    t.innerHTML = `<span class="material-icons-round" style="color:var(--${type}); font-size:24px;">${type==='success'?'check_circle':'error'}</span> <span style="font-weight:600; font-size:0.95rem;">${msg}</span>`;
+                    DOM.toast.appendChild(t); setTimeout(() => t.remove(), 4000);
+                },
+                modal: {
+                    container: document.getElementById('modal-container'),
+                    title: document.getElementById('modal-title'),
+                    body: document.getElementById('modal-body'),
+                    actions: document.getElementById('modal-actions'),
+                    show({ title, icon, bodyHTML, buttons }) {
+                        this.title.innerHTML = `<span class="material-icons-round" style="color:var(--primary); font-size:30px;">${icon || 'info'}</span> ${title}`;
+                        this.body.innerHTML = bodyHTML;
+                        this.actions.innerHTML = '';
+                        buttons.forEach(btn => {
+                            const b = document.createElement('button');
+                            b.className = `btn-modal ${btn.class || 'btn-primary'}`;
+                            b.type = 'button';
+                            b.innerText = btn.text;
+                            b.onclick = () => { if(btn.onClick) btn.onClick(); this.close(); };
+                            this.actions.appendChild(b);
+                        });
+                        this.container.classList.add('active');
+                    },
+                    close() { this.container.classList.remove('active'); }
+                },
+                bindFormatHelper: (inputId, helperId) => {
+                    document.getElementById(inputId).addEventListener('input', (e) => {
+                        let val = Number(e.target.value);
+                        document.getElementById(helperId).innerText = (val && Number.isFinite(val) && val > 0) ? Util.idr(val) : '';
+                    });
+                }
+            };
+
+            UI.modal.container.addEventListener('click', (e) => { if(e.target === UI.modal.container) UI.modal.close(); });
+
+            UI.bindFormatHelper('add-amount', 'helper-add-amount');
+            UI.bindFormatHelper('bud-amount', 'helper-bud-amount');
+            UI.bindFormatHelper('sub-price', 'helper-sub-price');
+            UI.bindFormatHelper('sav-target', 'helper-sav-target');
+            UI.bindFormatHelper('wish-price', 'helper-wish-price');
+            
+            // New Format helpers for Business
+            UI.bindFormatHelper('bus-buy-price', 'helper-bus-buy');
+            UI.bindFormatHelper('bus-sell-price', 'helper-bus-sell');
+
+            /* =========================================
+               C. CHART ENGINE
+               ========================================= */
+            const Charts = {
+                inst: { dash: null, pie: null, detail: null },
+                getColors() { return document.body.getAttribute('data-theme') === 'dark' ? '#cbd5e1' : '#475569'; },
+                getGridColor() { return document.body.getAttribute('data-theme') === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'; },
+                init() {
+                    Chart.defaults.color = this.getColors();
+                    Chart.defaults.font.family = 'Inter';
+                    this.renderDash();
+                    this.renderPie();
+                },
+                renderDash() {
+                    let ctx1 = document.getElementById('dashboardChart');
+                    if(!ctx1 || ctx1.offsetParent === null) return; 
+
+                    if(this.inst.dash) this.inst.dash.destroy();
+                    let dMap = {};
+                    let y = Filter.getYear(); let m = Filter.getMonth();
+                    
+                    let filteredTxs = AppState.data.transactions.filter(t => Filter.isMatch(t.date));
+                    filteredTxs.forEach(t => {
+                        let key;
+                        if (y === 'all') { key = t.date.substring(0, 4); } 
+                        else if (m === 'all') { key = t.date.substring(5, 7); } 
+                        else { key = t.date.substring(8, 10); } 
+
+                        if(!dMap[key]) dMap[key] = { i:0, e:0 };
+                        t.type === 'income' ? dMap[key].i += t.amount : dMap[key].e += t.amount;
+                    });
+                    
+                    if(Object.keys(dMap).length > 0) {
+                        let sortedKeys = Object.keys(dMap).sort((a,b) => parseInt(a) - parseInt(b));
+                        let labels = sortedKeys.map(k => {
+                            if(y === 'all') return k;
+                            if(m === 'all') {
+                                let dt = new Date(`${y}-${k}-01`);
+                                return dt.toLocaleString('en-US', {month:'short'});
+                            }
+                            return `${k} ${new Date(y+'-'+m+'-01').toLocaleString('en-US', {month:'short'})}`;
+                        });
+
+                        let incData = sortedKeys.map(k => dMap[k].i);
+                        let expData = sortedKeys.map(k => dMap[k].e);
+
+                        this.inst.dash = new Chart(ctx1, {
+                            type: 'bar',
+                            data: { labels: labels, datasets: [{ label:'Income', data: incData, backgroundColor:'#10b981', borderRadius:6, hoverBackgroundColor: '#059669'}, { label:'Expense', data: expData, backgroundColor:'#ef4444', borderRadius:6, hoverBackgroundColor: '#dc2626'}] },
+                            options: { 
+                                responsive:true, maintainAspectRatio:false, interaction: { mode: 'index', intersect: false }, 
+                                plugins: { 
+                                    legend: { position: 'bottom' }, 
+                                    tooltip: { 
+                                        padding: 12, cornerRadius: 8,
+                                        callbacks: {
+                                            label: function(context) {
+                                                let label = context.dataset.label || '';
+                                                let val = context.raw || 0;
+                                                let idx = context.dataIndex;
+                                                let i = context.chart.data.datasets[0].data[idx];
+                                                let e = context.chart.data.datasets[1].data[idx];
+                                                let total = i + e;
+                                                let pct = total > 0 ? ((val/total)*100).toFixed(1) : 0;
+                                                return `${label}: Rp ${val.toLocaleString('id-ID')} (${pct}%)`;
+                                            }
+                                        }
+                                    } 
+                                }, 
+                                scales: {y:{display:false, grid:{display:false}}, x:{grid:{display:false}}} 
+                            }
+                        });
+                    }
+                },
+                renderPie() {
+                    let ctxPie = document.getElementById('expensePieChart');
+                    if(!ctxPie || ctxPie.offsetParent === null) return;
+
+                    if(this.inst.pie) this.inst.pie.destroy();
+                    let expMap = {};
+                    let totalExp = 0;
+                    AppState.data.transactions.forEach(t => { 
+                        if(t.type === 'expense' && Filter.isMatch(t.date)) {
+                            expMap[t.category] = (expMap[t.category] || 0) + t.amount; 
+                            totalExp += t.amount;
+                        }
+                    });
+                    
+                    if(Object.keys(expMap).length > 0) {
+                        let strokeColor = document.body.getAttribute('data-theme')==='dark' ? '#1e293b' : '#ffffff';
+                        
+                        let labels = Object.keys(expMap).map(k => {
+                            let pct = totalExp > 0 ? ((expMap[k]/totalExp)*100).toFixed(1) : 0;
+                            return `${k} (${pct}%)`;
+                        });
+
+                        this.inst.pie = new Chart(ctxPie, {
+                            type: 'doughnut',
+                            data: { labels: labels, datasets: [{ data: Object.values(expMap), backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#64748b'], borderWidth: 3, borderColor: strokeColor, hoverOffset: 8 }] },
+                            options: { responsive:true, maintainAspectRatio:false, cutout: '65%', plugins: { legend: { position: 'right', labels:{boxWidth:12} }, tooltip: { padding: 12, callbacks: { label: function(c) { return `Rp ${c.raw.toLocaleString('id-ID')}`; } } } } }
+                        });
+                    }
+                },
+                renderDetail() {
+                    let ctx2 = document.getElementById('analyticsDetailChart');
+                    if(!ctx2 || ctx2.offsetParent === null) return;
+
+                    if(this.inst.detail) this.inst.detail.destroy();
+                    const cat = document.getElementById('ana-category').value;
+                    if(!cat) return;
+
+                    let dMap = {};
+                    [...AppState.data.transactions].filter(t => t.category === cat && Filter.isMatch(t.date)).reverse().forEach(t => {
+                        let key = Filter.getYear() === 'all' ? t.date.substring(0,7) : t.date;
+                        dMap[key] = (dMap[key] || 0) + t.amount;
+                    });
+
+                    let isInc = AppState.data.categories.income.includes(cat);
+                    let color = isInc ? '#10b981' : '#f59e0b';
+
+                    this.inst.detail = new Chart(ctx2, {
+                        type: 'line',
+                        data: { labels: Object.keys(dMap).length ? Object.keys(dMap) : ['No Data'], datasets: [{ label: cat, data: Object.values(dMap).length ? Object.values(dMap) : [0], borderColor: color, backgroundColor: color+'33', fill: true, tension: 0.4, pointRadius: 4, pointHoverRadius: 6 }] },
+                        options: { responsive:true, maintainAspectRatio:false, interaction: { mode: 'index', intersect: false }, plugins:{legend:{display:false}, tooltip: { padding: 10 }}, scales:{y:{grid:{color: this.getGridColor()}}, x:{grid:{display:false}}} }
+                    });
+                }
+            };
+
+            /* =========================================
+               TRANSACTION TYPE ↔ CATEGORY SYNC ENGINE 
+               ========================================= */
+            const txTypeSelect = document.getElementById('add-type');
+            const txCategorySelect = document.getElementById('add-category');
+            
+            function renderCategoryByType(type) {
+                const categories = AppState.data.categories[type] || [];
+                txCategorySelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+                txCategorySelect.selectedIndex = 0; 
+            }
+
+            txTypeSelect.addEventListener('change', () => {
+                renderCategoryByType(txTypeSelect.value);
+            });
+
+            /* =========================================
+               D. RENDER MODULES
+               ========================================= */
+            const Render = {
+                initTimeMachine() {
+                    let years = new Set();
+                    let curY = new Date().getFullYear().toString();
+                    years.add(curY);
+                    AppState.data.transactions.forEach(t => years.add(t.date.substring(0,4)));
+                    AppState.data.business.forEach(t => years.add(t.date.substring(0,4)));
+                    
+                    let sortedYears = Array.from(years).sort((a,b)=>b-a);
+                    let ySelect = document.getElementById('filter-year');
+                    ySelect.innerHTML = `<option value="all">All Time</option>` + sortedYears.map(y => `<option value="${y}">${y}</option>`).join('');
+                    
+                    ySelect.value = curY;
+                    document.getElementById('filter-month').value = new Date().toISOString().substring(5,7);
+                },
+
+                all() {
+                    this.updateDropdowns();
+                    this.fiatAndNetWorth(); 
+                    this.business(); 
+                    this.budget(); 
+                    this.subscriptions(); 
+                    this.savings(); 
+                    this.analytics(); 
+                    this.settings();
+                    this.financialInsight(); 
+                    Charts.init();
+                },
+                
+                updateDropdowns() {
+                    renderCategoryByType(txTypeSelect.value);
+                    document.getElementById('bud-cat').innerHTML = AppState.data.categories.expense.map(c=>`<option value="${c}">${c}</option>`).join('');
+                    document.getElementById('ana-category').innerHTML = [...AppState.data.categories.income, ...AppState.data.categories.expense].map(c=>`<option value="${c}">${c}</option>`).join('');
+                },
+                
+                financialInsight() {
+                    let i = 0, e = 0;
+                    AppState.data.transactions.forEach(t => {
+                        if(Filter.isMatch(t.date)) t.type === 'income' ? i+=t.amount : e+=t.amount;
+                    });
+                    
+                    let msg = ""; let color = "var(--primary)"; let icon = "psychology";
+                    if(i === 0 && e === 0) {
+                        msg = "No transactions found for this period. Start logging your finances to get AI insights.";
+                        color = "var(--text-muted)";
+                    } else if(e > i) {
+                        msg = `<strong>Deficit Alert!</strong> Your expenses (${Util.idr(e)}) have exceeded your income this period. Immediately cut back on unnecessary spending.`;
+                        color = "var(--danger)"; icon = "warning";
+                    } else {
+                        let savingRate = ((i - e) / i * 100).toFixed(1);
+                        if(savingRate >= 20) {
+                            msg = `<strong>Excellent Health!</strong> You have maintained a <em>Savings Rate</em> of <strong>${savingRate}%</strong>. Keep up the great work!`;
+                            color = "var(--success)"; icon = "verified";
+                        } else {
+                            msg = `<strong>Fair Condition.</strong> Your <em>Savings Rate</em> is <strong>${savingRate}%</strong>. Try to optimize expenses to save more than 20%.`;
+                            color = "var(--warning)"; icon = "lightbulb";
+                        }
+                    }
+                    
+                    let banner = document.getElementById('financial-insight');
+                    banner.style.borderLeftColor = color;
+                    banner.querySelector('.icon-box').style.background = color;
+                    banner.querySelector('.icon-box').innerHTML = `<span class="material-icons-round">${icon}</span>`;
+                    document.getElementById('insight-message').innerHTML = msg;
+                },
+
+                fiatAndNetWorth() {
+                    let i = 0, e = 0; let html = '';
+                    let filteredTxs = AppState.data.transactions.filter(t => Filter.isMatch(t.date));
+                    
+                    filteredTxs.forEach(t => {
+                        t.type === 'income' ? i+=t.amount : e+=t.amount;
+                        html += `<tr><td>${t.date}</td><td><span class="badge ${t.type==='income'?'badge-income':'badge-expense'}">${t.type}</span></td><td><strong>${t.category}</strong></td><td>${t.note?Util.escapeHTML(t.note):'-'}</td><td class="${t.type==='income'?'text-success':'text-danger'}">${t.type==='income'?'+':'-'} ${Util.idr(t.amount)}</td><td><button type="button" data-act="del-tx" data-id="${t.id}" style="color:var(--danger); display:flex; align-items:center;" title="Delete"><span class="material-icons-round" style="font-size:22px;">delete</span></button></td></tr>`;
+                    });
+                    
+                    document.getElementById('dash-income').innerText = Util.idr(i);
+                    document.getElementById('dash-expense').innerText = Util.idr(e);
+                    document.getElementById('tbody-fiat-history').innerHTML = html || '<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted);">No transaction data stored for this period.</td></tr>';
+                    document.getElementById('summary-tx').innerText = `Viewing: ${Filter.getSummaryText()}`;
+
+                    // Net Worth = Cumulative Fiat Balance + Cumulative Business Profit
+                    let cumulativeTxs = AppState.data.transactions.filter(t => t.date <= Filter.getEndDate());
+                    let cI = 0, cE = 0;
+                    cumulativeTxs.forEach(t => { t.type === 'income' ? cI+=t.amount : cE+=t.amount; });
+                    let fiatBal = cI - cE;
+                    document.getElementById('dash-balance').innerText = Util.idr(fiatBal);
+
+                    let globalBusProf = 0;
+                    AppState.data.business.filter(b => b.date <= Filter.getEndDate()).forEach(b => {
+                        globalBusProf += (b.sell - b.buy) * b.qty;
+                    });
+                    
+                    let netWorth = fiatBal + globalBusProf;
+                    document.getElementById('dash-networth').innerText = Util.idr(netWorth);
+                },
+
+                budget() {
+                    const actuals = {};
+                    AppState.data.transactions.forEach(t => { 
+                        if(t.type === 'expense' && Filter.isMatch(t.date)) {
+                            actuals[t.category] = (actuals[t.category] || 0) + t.amount; 
+                        }
+                    });
+
+                    let plansHtml = ''; let progHtml = '';
+                    let totTarget = 0; let totActual = 0;
+
+                    Object.keys(AppState.data.budgets).forEach(cat => {
+                        let planAmt = AppState.data.budgets[cat]; let actAmt = actuals[cat] || 0;
+                        totTarget += planAmt; totActual += actAmt;
+
+                        let pct = Math.min((actAmt / planAmt) * 100, 100).toFixed(0);
+                        let isOvr = actAmt > planAmt; let barColor = isOvr ? 'var(--danger)' : (pct > 80 ? 'var(--warning)' : 'var(--primary)');
+
+                        plansHtml += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.9rem; border-bottom:1px solid var(--border); padding-bottom:12px; padding-top:4px;"><span><strong>${cat}</strong></span> <div style="display:flex; align-items:center; gap:10px;">${Util.idr(planAmt)} <button type="button" data-act="del-bud" data-cat="${cat}" style="color:var(--danger); display:flex;"><span class="material-icons-round" style="font-size:20px;">cancel</span></button></div></div>`;
+                        
+                        progHtml += `<div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600; margin-bottom:8px;"><span>${cat}</span> <span style="color:${isOvr?'var(--danger)':'var(--text-main)'}">${Util.idr(actAmt)} / ${Util.idr(planAmt)} (${pct}%)</span></div>
+                            <div class="prog-container"><div class="prog-bar" style="width:${pct}%; background:${barColor};"></div></div>
+                        </div>`;
+                    });
+
+                    document.getElementById('list-budget-plans').innerHTML = plansHtml || '<p style="color:var(--text-muted); font-size: 0.9rem;">No active budget limits.</p>';
+                    document.getElementById('budget-progress-container').innerHTML = progHtml || '<p style="color:var(--text-muted); font-size: 0.9rem;">Create a target limit to see progress.</p>';
+                    document.getElementById('summary-budget').innerText = `Total Target: ${Util.idr(totTarget)} | Spent: ${Util.idr(totActual)}`;
+                },
+
+                // BUSINESS MODULE LOGIC
+                business() {
+                    let inc = 0, exp = 0, prof = 0, qty = 0;
+                    let html = '';
+                    
+                    let filteredBus = AppState.data.business.filter(b => Filter.isMatch(b.date));
+                    
+                    filteredBus.sort((a,b) => {
+                        let da = new Date(a.date).getTime() || 0;
+                        let db = new Date(b.date).getTime() || 0;
+                        if(da === db) return (b.timestamp||0) - (a.timestamp||0);
+                        return db - da; 
+                    });
+
+                    filteredBus.forEach(b => {
+                        let tInc = b.sell * b.qty;
+                        let tExp = b.buy * b.qty;
+                        let tProf = tInc - tExp;
+                        
+                        inc += tInc;
+                        exp += tExp;
+                        prof += tProf;
+                        qty += b.qty;
+                        
+                        html += `<tr>
+                            <td>${b.date}</td>
+                            <td><strong>${Util.escapeHTML(b.item)}</strong></td>
+                            <td>${b.qty}</td>
+                            <td><span style="color:var(--danger)">${Util.idr(b.buy)}</span> / <span style="color:var(--success)">${Util.idr(b.sell)}</span></td>
+                            <td style="color:${tProf >= 0 ? 'var(--success)' : 'var(--danger)'}; font-weight:800;">${tProf >= 0 ? '+' : ''}${Util.idr(tProf)}</td>
+                            <td><button type="button" data-act="del-bus" data-id="${b.id}" style="color:var(--danger); display:flex; align-items:center;" title="Delete"><span class="material-icons-round" style="font-size:22px;">delete</span></button></td>
+                        </tr>`;
+                    });
+                    
+                    document.getElementById('bus-income').innerText = Util.idr(inc);
+                    document.getElementById('bus-expense').innerText = Util.idr(exp);
+                    document.getElementById('bus-profit').innerText = Util.idr(prof);
+                    document.getElementById('bus-qty').innerText = qty;
+                    
+                    document.getElementById('tbody-business-history').innerHTML = html || '<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted);">No business records found for this period.</td></tr>';
+                },
+
+                subscriptions() {
+                    let totalMonthly = 0;
+                    let html = AppState.data.subscriptions.map(s => {
+                        let monthlyCost = s.cycle === 'yearly' ? s.price / 12 : s.price;
+                        if(s.active) totalMonthly += monthlyCost;
+                        
+                        return `<tr>
+                            <td><strong>${Util.escapeHTML(s.name)}</strong></td>
+                            <td>${Util.idr(s.price)}</td>
+                            <td><span class="badge ${s.cycle==='yearly'?'badge-buy':'badge-expense'}">${s.cycle}</span></td>
+                            <td style="font-weight:600; color:var(--text-main)">${Util.idr(monthlyCost)} / mo</td>
+                            <td style="white-space:nowrap;">
+                                ${s.active ? `<button type="button" data-act="pay-sub" data-id="${s.id}" class="badge badge-pay" style="margin-right:12px;" title="Record Expense Now"><span class="material-icons-round" style="font-size:12px; vertical-align:middle;">payment</span> PAY NOW</button>` : ''}
+                                <button type="button" data-act="toggle-sub" data-id="${s.id}" class="badge ${s.active?'badge-active':'badge-inactive'}" style="margin-right:8px; width:70px;">${s.active?'ACTIVE':'PAUSED'}</button>
+                                <button type="button" data-act="del-sub" data-id="${s.id}" style="color:var(--danger); vertical-align:middle;" title="Delete"><span class="material-icons-round" style="font-size:22px;">delete</span></button>
+                            </td>
+                        </tr>`;
+                    }).join('');
+
+                    let activeCount = AppState.data.subscriptions.filter(x=>x.active).length;
+                    let pausedCount = AppState.data.subscriptions.length - activeCount;
+                    
+                    document.getElementById('tbody-subs').innerHTML = html || '<tr><td colspan="5" style="text-align:center; padding:20px;">No recurring bills recorded.</td></tr>';
+                    document.getElementById('sub-monthly-cost').innerText = Util.idr(totalMonthly);
+                    document.getElementById('summary-subs').innerText = `Active: ${activeCount} | Paused: ${pausedCount}`;
+                },
+
+                savings() {
+                    let totTarget = 0; let totCurrent = 0;
+                    let sHtml = AppState.data.savings.map(s => {
+                        totTarget += s.target; totCurrent += s.current;
+                        let pct = Math.min((s.current / s.target)*100, 100).toFixed(0);
+                        return `<tr><td><strong style="font-size:1.05rem;">${Util.escapeHTML(s.name)}</strong><br><span style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">${Util.idr(s.current)} / ${Util.idr(s.target)} (${pct}%)</span><div class="prog-container" style="margin-top:10px;"><div class="prog-bar" style="width:${pct}%; background:var(--success);"></div></div></td>
+                        <td style="white-space:nowrap; vertical-align:middle;"><button type="button" data-act="add-sav" data-id="${s.id}" style="color:var(--primary); margin-right:10px; background:var(--primary-light); padding:10px; border-radius:8px;" title="Add Funds"><span class="material-icons-round" style="font-size:20px;">add</span></button> <button type="button" data-act="del-sav" data-id="${s.id}" style="color:var(--danger); padding:8px;" title="Delete"><span class="material-icons-round" style="font-size:22px;">delete</span></button></td></tr>`;
+                    }).join('');
+                    
+                    document.getElementById('tbody-savings').innerHTML = sHtml || '<tr><td colspan="2" style="text-align:center; padding:30px;">No savings goals created.</td></tr>';
+                    document.getElementById('summary-sav').innerText = `Total Saved: ${Util.idr(totCurrent)} / ${Util.idr(totTarget)}`;
+
+                    let totWish = 0;
+                    let wHtml = AppState.data.wishlist.map(w => {
+                        let isBought = w.status === 'bought';
+                        if(!isBought) totWish += w.price;
+                        let linkHTML = w.link ? `<a href="${Util.escapeHTML(w.link)}" target="_blank" style="font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:4px;"><span class="material-icons-round" style="font-size:16px;">open_in_new</span> Open Link</a>` : '-';
+                        
+                        return `<tr><td><strong style="text-decoration:${isBought?'line-through':'none'}; font-size:1rem;">${Util.escapeHTML(w.name)}</strong><br><span style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">${Util.idr(w.price)}</span></td>
+                        <td>${linkHTML}</td>
+                        <td style="white-space:nowrap;">
+                            ${!isBought ? `<button type="button" data-act="buy-wish" data-id="${w.id}" class="badge badge-buy" style="border:none; margin-right:12px; cursor:pointer;">MARK BOUGHT</button>` : `<span class="badge" style="background:var(--border); color:var(--text-muted); margin-right:12px;">PURCHASED</span>`}
+                            <button type="button" data-act="del-wish" data-id="${w.id}" style="color:var(--danger); vertical-align:middle;" title="Delete"><span class="material-icons-round" style="font-size:22px;">delete</span></button>
+                        </td></tr>`;
+                    }).join('');
+                    document.getElementById('tbody-wishlist').innerHTML = wHtml || '<tr><td colspan="3" style="text-align:center; padding:30px;">Your wishlist is empty.</td></tr>';
+                    document.getElementById('summary-wish').innerText = `Total Pending Cost: ${Util.idr(totWish)}`;
+                },
+
+                analytics() {
+                    let tMap = {}; let inc = 0, exp = 0;
+                    AppState.data.transactions.forEach(t => {
+                        let m = t.date.substring(0,7); if(!tMap[m]) tMap[m] = 1;
+                        if(Filter.isMatch(t.date)) {
+                            t.type==='income' ? inc+=t.amount : exp+=t.amount;
+                        }
+                    });
+                    
+                    let moCount = Filter.getYear() !== 'all' && Filter.getMonth() !== 'all' ? 1 : (Object.keys(tMap).length || 1);
+                    let displayInc = Filter.getMonth() !== 'all' ? inc : inc/moCount;
+                    let displayExp = Filter.getMonth() !== 'all' ? exp : exp/moCount;
+                    let titleLabel = Filter.getMonth() !== 'all' ? 'Total' : 'Avg';
+
+                    document.getElementById('analytic-stats').innerHTML = `
+                        <div class="stat-card" style="border-left:4px solid var(--success)"><div class="stat-icon" style="background:var(--success)"><span class="material-icons-round">arrow_downward</span></div><div class="stat-info"><h3 title="Income">${titleLabel} Income</h3><h2>${Util.idr(displayInc)}</h2></div></div>
+                        <div class="stat-card" style="border-left:4px solid var(--danger)"><div class="stat-icon" style="background:var(--danger)"><span class="material-icons-round">arrow_upward</span></div><div class="stat-info"><h3 title="Expense">${titleLabel} Expense</h3><h2>${Util.idr(displayExp)}</h2></div></div>
+                        <div class="stat-card" style="border-left:4px solid var(--info)"><div class="stat-icon" style="background:var(--info)"><span class="material-icons-round">calendar_today</span></div><div class="stat-info"><h3 title="Time Filter">Period</h3><h2>${Filter.getSummaryText()}</h2></div></div>
+                        <div class="stat-card" style="border-left:4px solid var(--primary)"><div class="stat-icon" style="background:var(--primary)"><span class="material-icons-round">receipt_long</span></div><div class="stat-info"><h3 title="Total Record Transaksi">Transactions</h3><h2>${AppState.data.transactions.filter(t=>Filter.isMatch(t.date)).length} Trx</h2></div></div>
+                    `;
+                },
+
+                settings() {
+                    const rTag = (arr, id, mType, sType) => {
+                        document.getElementById(id).innerHTML = arr.map((item, i) => 
+                            `<div style="display:flex; align-items:center; gap:8px; background:var(--bg-body); border:1px solid var(--border); padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:600;">${Util.escapeHTML(item)} <button type="button" data-act="del-setting" data-idx="${i}" data-m="${mType}" data-s="${sType||''}" style="color:var(--danger); display:flex;"><span class="material-icons-round" style="font-size:16px;">close</span></button></div>`
+                        ).join('');
+                    };
+                    rTag(AppState.data.categories.expense, 'list-cat-expense', 'categories', 'expense');
+                    rTag(AppState.data.categories.income, 'list-cat-income', 'categories', 'income');
+                }
+            };
+
+            /* =========================================
+               E. EVENT LISTENERS
+               ========================================= */
+            
+            document.getElementById('btn-toggle-pwd').addEventListener('click', function() {
+                let pwdInput = document.getElementById('login-password');
+                let icon = this.querySelector('.material-icons-round');
+                if(pwdInput.type === 'password') { pwdInput.type = 'text'; icon.textContent = 'visibility_off'; } 
+                else { pwdInput.type = 'password'; icon.textContent = 'visibility'; }
+            });
+
+            document.getElementById('loginForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                let u = btoa(document.getElementById('login-username').value);
+                let p = btoa(document.getElementById('login-password').value);
+                
+                if(u === U_HASH && p === P_HASH) {
+                    document.getElementById('login-screen').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('login-screen').style.display = 'none';
+                        document.getElementById('app-wrapper').style.display = 'flex';
+                        document.getElementById('current-date').innerText = Util.todayStr();
+                        
+                        document.getElementById('add-date').value = Util.date();
+                        document.getElementById('bus-date').value = Util.date();
+
+                        AppState.init(); 
+                        Render.initTimeMachine(); 
+                        Render.all(); 
+                        UI.toast('Vault Unlocked Successfully!', 'success');
+                    }, 300);
+                } else {
+                    document.getElementById('login-error').style.display = 'block';
+                }
+            });
+
+            document.getElementById('btn-logout').addEventListener('click', () => {
+                UI.modal.show({ title: 'Lock Vault?', icon: 'lock', bodyHTML: 'Your session will end and the application will be locked.', buttons: [
+                    {text: 'Cancel', class: 'btn-cancel'},
+                    {text: 'Lock Now', class: 'btn-danger', onClick: () => { location.reload(); }}
+                ]});
+            });
+
+            DOM.navs.forEach(l => l.addEventListener('click', e => {
+                e.preventDefault(); 
+                DOM.views.forEach(v=>v.classList.remove('active')); 
+                DOM.navs.forEach(n=>n.classList.remove('active'));
+                
+                let target = e.currentTarget.dataset.target;
+                document.getElementById(target).classList.add('active');
+                e.currentTarget.classList.add('active'); 
+                document.getElementById('page-title').innerText = e.currentTarget.dataset.title;
+                
+                if(target === 'view-analytics') { setTimeout(() => Charts.renderDetail(), 50); }
+                if(target === 'view-dashboard') { setTimeout(() => { Charts.renderDash(); Charts.renderPie(); Render.financialInsight(); }, 50); }
+            }));
+
+            // TIME MACHINE LISTENER
+            const triggerTimeMachine = () => {
+                let y = Filter.getYear(); let m = Filter.getMonth();
+                if(y === 'all') {
+                    document.getElementById('filter-month').value = 'all';
+                    document.getElementById('filter-month').disabled = true;
+                    document.getElementById('filter-month').style.opacity = '0.5';
+                } else {
+                    document.getElementById('filter-month').disabled = false;
+                    document.getElementById('filter-month').style.opacity = '1';
+                }
+                Render.all();
+                UI.toast(`Viewing Data: ${Filter.getSummaryText()}`, 'success');
+            };
+
+            document.getElementById('filter-year').addEventListener('change', triggerTimeMachine);
+            document.getElementById('filter-month').addEventListener('change', triggerTimeMachine);
+
+            document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+                let isD = document.body.getAttribute('data-theme') === 'dark';
+                document.body.setAttribute('data-theme', isD ? 'light' : 'dark');
+                document.getElementById('theme-icon').innerText = isD ? 'dark_mode' : 'light_mode';
+                Charts.init();
+                Charts.renderDetail(); 
+            });
+
+            document.getElementById('ana-category').addEventListener('change', () => Charts.renderDetail());
+
+            /* =========================================
+               FORM SUBMITS WITH DEFENSIVE CHECKS
+               ========================================= */
+            
+            document.getElementById('form-add-tx').addEventListener('submit', e => {
+                e.preventDefault();
+                let amt = Number(document.getElementById('add-amount').value);
+                if (!Number.isFinite(amt) || amt <= 0) return UI.toast('Invalid amount', 'error');
+                
+                let type = document.getElementById('add-type').value;
+                let category = document.getElementById('add-category').value;
+                if (!AppState.data.categories[type].includes(category)) return UI.toast('Category mismatch!', 'error');
+
+                let inputDate = document.getElementById('add-date').value;
+                AppState.data.transactions.push({ id: Util.id('TX'), date: inputDate, timestamp: Date.now(), type: type, category: category, amount: amt, note: document.getElementById('add-note').value });
+                
+                AppState.data.transactions.sort((a, b) => {
+                    let da = new Date(a.date).getTime() || 0;
+                    let db = new Date(b.date).getTime() || 0;
+                    if(db - da === 0) return (b.timestamp||0) - (a.timestamp||0);
+                    return db - da;
+                });
+
+                AppState.save(); e.target.reset(); document.getElementById('add-date').value = inputDate; document.getElementById('helper-add-amount').innerText = '';
+                
+                document.getElementById('add-type').value = 'expense';
+                renderCategoryByType('expense');
+
+                Render.initTimeMachine(); 
+                Render.all(); 
+                UI.toast('Transaction Saved');
+            });
+
+            document.getElementById('form-budget').addEventListener('submit', e => {
+                e.preventDefault(); 
+                let amt = Number(document.getElementById('bud-amount').value);
+                if (!Number.isFinite(amt) || amt <= 0) return UI.toast('Invalid limit amount', 'error');
+
+                AppState.data.budgets[document.getElementById('bud-cat').value] = amt;
+                AppState.save(); e.target.reset(); document.getElementById('helper-bud-amount').innerText = ''; Render.budget(); UI.toast('Target Budget Updated');
+            });
+
+            // BUSINESS LOGIC SUBMIT
+            const calcBus = () => {
+                let buy = Number(document.getElementById('bus-buy-price').value || 0);
+                let sell = Number(document.getElementById('bus-sell-price').value || 0);
+                let qty = Number(document.getElementById('bus-quantity').value || 0);
+                let profit = (sell - buy) * qty;
+                document.getElementById('bus-est-profit').innerText = Util.idr(profit);
+            };
+            document.getElementById('bus-buy-price').addEventListener('input', calcBus);
+            document.getElementById('bus-sell-price').addEventListener('input', calcBus);
+            document.getElementById('bus-quantity').addEventListener('input', calcBus);
+
+            document.getElementById('form-add-business').addEventListener('submit', e => {
+                e.preventDefault();
+                let buy = Number(document.getElementById('bus-buy-price').value); 
+                let sell = Number(document.getElementById('bus-sell-price').value);
+                let qty = Number(document.getElementById('bus-quantity').value);
+                
+                if (!Number.isFinite(buy) || buy < 0 || !Number.isFinite(sell) || sell < 0 || !Number.isFinite(qty) || qty <= 0) {
+                    return UI.toast('Invalid amount/price', 'error');
+                }
+
+                let inputDate = document.getElementById('bus-date').value;
+                let item = document.getElementById('bus-item').value;
+                
+                AppState.data.business.push({ id: Util.id('BUS'), date: inputDate, timestamp: Date.now(), item: item, buy: buy, sell: sell, qty: qty });
+                
+                AppState.data.business.sort((a, b) => {
+                    let da = new Date(a.date).getTime() || 0;
+                    let db = new Date(b.date).getTime() || 0;
+                    if(db - da === 0) return (b.timestamp||0) - (a.timestamp||0);
+                    return db - da;
+                });
+
+                AppState.save(); e.target.reset(); document.getElementById('bus-date').value = inputDate; document.getElementById('bus-est-profit').innerText = 'Rp 0';
+                Render.initTimeMachine();
+                Render.business(); Render.fiatAndNetWorth(); UI.toast('Business Record Saved');
+            });
+
+
+            document.getElementById('form-add-sub').addEventListener('submit', e => {
+                e.preventDefault(); 
+                let prc = Number(document.getElementById('sub-price').value);
+                if (!Number.isFinite(prc) || prc <= 0) return UI.toast('Invalid bill amount', 'error');
+
+                AppState.data.subscriptions.push({ id: Util.id('SUB'), name: document.getElementById('sub-name').value, price: prc, cycle: document.getElementById('sub-cycle').value, active: true });
+                AppState.save(); e.target.reset(); document.getElementById('helper-sub-price').innerText = ''; Render.subscriptions(); UI.toast('Subscription Added');
+            });
+
+            document.getElementById('form-add-saving').addEventListener('submit', e => {
+                e.preventDefault(); 
+                let tgt = Number(document.getElementById('sav-target').value);
+                if (!Number.isFinite(tgt) || tgt <= 0) return UI.toast('Invalid target amount', 'error');
+
+                AppState.data.savings.push({ id: Util.id('SAV'), name: document.getElementById('sav-name').value, target: tgt, current: 0 });
+                AppState.save(); e.target.reset(); document.getElementById('helper-sav-target').innerText = ''; Render.savings(); UI.toast('Savings Goal Created');
+            });
+
+            document.getElementById('form-add-wishlist').addEventListener('submit', e => {
+                e.preventDefault(); 
+                let prc = Number(document.getElementById('wish-price').value);
+                if (!Number.isFinite(prc) || prc <= 0) return UI.toast('Invalid estimated price', 'error');
+
+                let linkUrl = document.getElementById('wish-link').value;
+                AppState.data.wishlist.push({ id: Util.id('WSH'), name: document.getElementById('wish-name').value, price: prc, link: linkUrl, status: 'pending' });
+                AppState.save(); e.target.reset(); document.getElementById('helper-wish-price').innerText = ''; Render.savings(); UI.toast('Wishlist Item Added');
+            });
+
+            const bindSet = (fId, iId, mType, sType) => {
+                let form = document.getElementById(fId);
+                if(!form) return; // Prevent error if ID removed (like crypto)
+                form.addEventListener('submit', e => {
+                    e.preventDefault(); let val = document.getElementById(iId).value.trim();
+                    if(!val) return; let tArr = sType ? AppState.data[mType][sType] : AppState.data[mType];
+                    if(tArr.includes(val)) return UI.toast('Item already exists!', 'error');
+                    tArr.push(val); document.getElementById(iId).value='';
+                    AppState.save(); Render.settings(); Render.updateDropdowns(); UI.toast(`Item ${val} Added`);
+                });
+            };
+            bindSet('form-setting-expense', 'new-cat-expense', 'categories', 'expense');
+            bindSet('form-setting-income', 'new-cat-income', 'categories', 'income');
+
+            // --- Button Delegations ---
+            document.body.addEventListener('click', e => {
+                let btn = e.target.closest('button'); if(!btn || !btn.dataset.act) return;
+                let act = btn.dataset.act, id = btn.dataset.id;
+
+                if(act === 'del-tx') {
+                    UI.modal.show({ title: 'Delete Transaction?', icon: 'warning', bodyHTML: 'Are you sure you want to delete this record? Your balance will automatically adjust.', buttons: [
+                        {text: 'Cancel', class: 'btn-cancel'},
+                        {text: 'Yes, Delete', class: 'btn-danger', onClick: () => { AppState.data.transactions = AppState.data.transactions.filter(t=>t.id!==id); AppState.save(); Render.all(); UI.toast('Transaction Deleted'); }}
+                    ]});
+                }
+                
+                if(act === 'del-bus') {
+                    UI.modal.show({ title: 'Delete Business Record?', icon: 'warning', bodyHTML: 'Are you sure you want to delete this business record? Profits and summaries will be recalculated.', buttons: [
+                        {text: 'Cancel', class: 'btn-cancel'},
+                        {text: 'Yes, Delete', class: 'btn-danger', onClick: () => { AppState.data.business = AppState.data.business.filter(t=>t.id!==id); AppState.save(); Render.business(); Render.fiatAndNetWorth(); UI.toast('Business Record Deleted'); }}
+                    ]});
+                }
+                
+                if(act === 'del-bud') { delete AppState.data.budgets[btn.dataset.cat]; AppState.save(); Render.budget(); }
+                if(act === 'del-sav') { AppState.data.savings = AppState.data.savings.filter(s=>s.id!==id); AppState.save(); Render.savings(); }
+                
+                if(act === 'del-wish') { 
+                    AppState.data.wishlist = AppState.data.wishlist.filter(w=>w.id!==id); 
+                    AppState.save(); Render.all(); UI.toast('Wishlist Item Deleted'); 
+                }
+
+                if(act === 'del-sub') { AppState.data.subscriptions = AppState.data.subscriptions.filter(s=>s.id!==id); AppState.save(); Render.subscriptions(); }
+                
+                if(act === 'toggle-sub') {
+                    let s = AppState.data.subscriptions.find(x=>x.id===id); s.active = !s.active;
+                    AppState.save(); Render.subscriptions(); UI.toast(s.active ? 'Subscription Activated' : 'Subscription Paused');
+                }
+
+                if(act === 'pay-sub') {
+                    let s = AppState.data.subscriptions.find(x=>x.id===id);
+                    UI.modal.show({ title: 'Pay this Bill?', icon: 'payment', bodyHTML: `The system will auto-record an expense of <strong>${Util.idr(s.price)}</strong> into your Fiat Transactions today to pay for <strong>${Util.escapeHTML(s.name)}</strong>. Proceed?`, buttons: [
+                        {text: 'Cancel', class: 'btn-cancel'},
+                        {text: 'Pay Now', class: 'btn-primary', style: 'background: var(--purple)', onClick: () => {
+                            AppState.data.transactions.push({ id: Util.id('TX'), date: Util.date(), timestamp: Date.now(), type: 'expense', category: 'Utility', amount: s.price, note: `Auto-Pay Bill: ${s.name}` });
+                            AppState.data.transactions.sort((a, b) => { let da = new Date(a.date).getTime()||0; let db = new Date(b.date).getTime()||0; if(db-da===0) return (b.timestamp||0)-(a.timestamp||0); return db-da; });
+                            AppState.save(); Render.all(); UI.toast(`Paid successfully for ${s.name}!`);
+                        }}
+                    ]});
+                }
+
+                if(act === 'del-setting') {
+                    let { m, s, idx } = btn.dataset; let tArr = s ? AppState.data[m][s] : AppState.data[m];
+                    if(tArr.length <= 1) return UI.toast('Warning: At least 1 item is required.', 'error');
+                    tArr.splice(idx, 1); AppState.save(); Render.settings(); Render.updateDropdowns();
+                }
+
+                if(act === 'add-sav') {
+                    let s = AppState.data.savings.find(x=>x.id===id);
+                    UI.modal.show({
+                        title: `Add Funds: ${Util.escapeHTML(s.name)}`, icon: 'add_circle',
+                        bodyHTML: `<p>Current Progress: ${Util.idr(s.current)} / ${Util.idr(s.target)}</p><br><div class="form-group"><input type="number" id="modal-sav-input" class="form-control" placeholder="Amount Added (IDR)" min="1"><span class="format-helper" id="helper-modal-sav" style="display:block; margin-top:4px;"></span></div>`,
+                        buttons: [
+                            {text: 'Cancel', class: 'btn-cancel'},
+                            {text: 'Add Funds', class: 'btn-primary', onClick: () => {
+                                let amt = Number(document.getElementById('modal-sav-input').value);
+                                if (!Number.isFinite(amt) || amt <= 0) return UI.toast('Invalid Amount', 'error');
+                                s.current += amt; AppState.save(); Render.savings(); UI.toast('Funds Added Successfully');
+                            }}
+                        ]
+                    });
+                    setTimeout(() => UI.bindFormatHelper('modal-sav-input', 'helper-modal-sav'), 100);
+                }
+                
+                if(act === 'buy-wish') {
+                    let w = AppState.data.wishlist.find(x=>x.id===id);
+                    UI.modal.show({ title: 'Mark as Bought?', icon: 'shopping_bag', bodyHTML: `Did you purchase <strong>${Util.escapeHTML(w.name)}</strong> for ${Util.idr(w.price)}?<br><br><span style="font-size:0.85rem; color:var(--text-muted);">This will automatically log a "Shopping" expense for today.</span>`, buttons: [
+                        {text: 'Cancel', class: 'btn-cancel'},
+                        {text: 'Confirm Purchase', class: 'btn-success', style:'background:var(--success);', onClick: () => {
+                            w.status = 'bought';
+                            AppState.data.transactions.push({ id: Util.id('TX'), date: Util.date(), timestamp: Date.now(), type: 'expense', category: 'Shopping', amount: w.price, note: `Wishlist: ${w.name}` });
+                            AppState.data.transactions.sort((a, b) => { let da = new Date(a.date).getTime()||0; let db = new Date(b.date).getTime()||0; if(db-da===0) return (b.timestamp||0)-(a.timestamp||0); return db-da; }); 
+                            AppState.save(); Render.all(); UI.toast(`Enjoy your new ${w.name}!`);
+                        }}
+                    ]});
+                }
+            });
+
+            // Wipe Data
+            document.getElementById('btn-reset-data').addEventListener('click', () => { 
+                UI.modal.show({ title: 'WIPE ALL DATA', icon: 'warning', bodyHTML: '<p style="color:var(--danger); font-weight:bold;">WARNING!</p><p>Type "WIPE" below if you want to permanently format/delete the entire application data.</p><div class="form-group" style="margin-top:16px;"><input type="text" id="modal-wipe-input" class="form-control" placeholder="WIPE"></div>', buttons: [
+                    {text: 'Cancel', class: 'btn-cancel'},
+                    {text: 'Destroy Data', class: 'btn-danger', onClick: () => {
+                        if(document.getElementById('modal-wipe-input').value === 'WIPE') { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+                        else { UI.toast('Confirmation word mismatch', 'error'); }
+                    }}
+                ]});
+            });
+
+            // Export CSV
+            document.getElementById('btn-export-csv').addEventListener('click', () => {
+                if(!AppState.data.transactions.length) return UI.toast('No transaction data to export', 'error');
+                
+                let csvContent = "Date,Type,Category,Amount,Note\n" + AppState.data.transactions.map(t => {
+                    let safeNote = t.note ? t.note.replace(/"/g, '""').replace(/\n/g, ' ') : '';
+                    return `${t.date},${t.type},${t.category},${t.amount},"${safeNote}"`;
+                }).join("\n");
+                
+                let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                let url = URL.createObjectURL(blob);
+                const l = document.createElement("a"); 
+                l.href = url; 
+                l.download = `KrisnaVault_Transactions_${Util.date()}.csv`; 
+                document.body.appendChild(l); l.click(); l.remove();
+                URL.revokeObjectURL(url);
+                UI.toast('CSV Export Downloaded!', 'success');
+            });
+
+            // Export JSON
+            document.getElementById('btn-export-json').addEventListener('click', () => {
+                let dataStr = JSON.stringify(AppState.data, null, 2);
+                let blob = new Blob([dataStr], {type: "application/json"});
+                let url  = URL.createObjectURL(blob);
+                const l = document.createElement("a"); l.href = url; l.download = `KrisnaVault_Backup_${Util.date()}.json`;
+                document.body.appendChild(l); l.click(); l.remove();
+                URL.revokeObjectURL(url);
+                UI.toast('Full Backup Downloaded!', 'success');
+            });
+
+            document.getElementById('btn-trigger-import').addEventListener('click', () => {
+                document.getElementById('file-import-json').click();
+            });
+
+            document.getElementById('file-import-json').addEventListener('change', (e) => {
+                let file = e.target.files[0];
+                if (!file) return;
+                let reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        let importedData = JSON.parse(event.target.result);
+                        if(importedData && importedData.transactions && importedData.categories) {
+                            UI.modal.show({ title: 'Confirm Restore', icon: 'cloud_upload', bodyHTML: 'Are you sure you want to overwrite current data with the Backup file? This cannot be undone.', buttons: [
+                                {text: 'Cancel', class: 'btn-cancel'},
+                                {text: 'Start Restore', class: 'btn-primary', onClick: () => {
+                                    AppState.data = (typeof structuredClone === 'function') ? structuredClone(importedData) : JSON.parse(JSON.stringify(importedData));
+                                    AppState.save();
+                                    UI.toast('Data Restored Successfully! Refreshing system...', 'success');
+                                    setTimeout(() => location.reload(), 1500);
+                                }}
+                            ]});
+                        } else { UI.toast('Invalid / Corrupted JSON File', 'error'); }
+                    } catch (err) { UI.toast('Failed to read Backup file', 'error'); }
+                };
+                reader.readAsText(file);
+                e.target.value = ''; 
+            });
+
+        });
+    </script>
+</body>
+</html>
